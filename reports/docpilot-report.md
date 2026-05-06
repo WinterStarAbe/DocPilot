@@ -7,11 +7,11 @@
 ## 掃描摘要
 
 - Target: `E:\WorkSpace\CodeX\DocPilot`
-- Generated at: 2026-05-06T07:28:10.181Z
+- Generated at: 2026-05-06T08:13:06.759Z
 - Package name: docpilot
 - README: present
 - Docs directory: present
-- Total files: 15
+- Total files: 16
 - Markdown files: 2
 - Missing common sections: none
 
@@ -23,15 +23,15 @@
 
 ## 文件結構概覽
 
-- Top-level directories: `docs`, `src`, `tests`
+- Top-level directories: `.github`, `docs`, `src`, `tests`
 - Coverage signals: none
 - Quality signals: none
 - Risky areas: none
 
 ### Largest documents
 
+- `README.md`: 335 words, 87 lines, 0 broken links
 - `docs/application.md`: 329 words, 97 lines, 0 broken links
-- `README.md`: 228 words, 66 lines, 0 broken links
 
 ## 發現項目
 

@@ -2,6 +2,22 @@
 
 DocPilot is an AI-agent assisted Markdown documentation analysis CLI. It scans a project or documentation directory, runs a deterministic multi-agent review flow, and writes a Markdown report that can be used for documentation debt review, demo material, or AI incentive program submissions.
 
+Repository: <https://github.com/WinterStarAbe/DocPilot>
+
+## MVP Demo
+
+DocPilot can analyze its own repository and produce a submission-ready report:
+
+```bash
+npm run analyze:self
+```
+
+Demo evidence:
+
+- Self-analysis report: `reports/docpilot-report.md`
+- Incentive program application material: `docs/application.md`
+- CI workflow: `.github/workflows/ci.yml`
+
 ## Getting Started
 
 ```bash
@@ -27,15 +43,17 @@ Defaults:
 Use Gemini when `GEMINI_API_KEY` is available:
 
 ```bash
-GEMINI_API_KEY=your-key docpilot analyze --provider gemini --model gemini-2.5-flash
+GEMINI_API_KEY=your-key node dist/src/cli.js analyze --provider gemini --model gemini-2.5-flash --out reports/docpilot-gemini-report.md
 ```
 
 PowerShell:
 
 ```powershell
 $env:GEMINI_API_KEY = "your-key"
-docpilot analyze --provider gemini --model gemini-2.5-flash
+node dist/src/cli.js analyze --provider gemini --model gemini-2.5-flash --out reports/docpilot-gemini-report.md
 ```
+
+The Gemini report is intentionally not checked in by default because it depends on a live API key and model output.
 
 ## Agent Flow
 
@@ -48,18 +66,21 @@ The MVP uses `MockAiProvider` for stable repeatable output, supports `GeminiProv
 ## Development
 
 ```bash
+npm ci
 npm run build
 npm run lint
 npm test
+npm run analyze:self
 ```
 
 ## Testing
 
 DocPilot uses Vitest for unit coverage around scanning, rule findings, provider parsing, and report rendering.
 
+GitHub Actions runs build, lint, tests, self-analysis, and uploads the generated DocPilot report as a workflow artifact.
+
 ## Roadmap
 
 - Add a template generation agent for missing documentation sections.
 - Add CI artifact publishing for generated documentation reports.
 - Connect the placeholder MiMo provider when live API access is available.
-
