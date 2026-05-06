@@ -7,7 +7,7 @@
 ## 掃描摘要
 
 - Target: `E:\WorkSpace\CodeX\DocPilot\examples\bad-docs`
-- Generated at: 2026-05-06T08:58:17.355Z
+- Generated at: 2026-05-06T09:02:32.000Z
 - Package name: n/a
 - README: missing
 - Docs directory: missing
