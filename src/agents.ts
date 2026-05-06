@@ -11,7 +11,8 @@ const EXCLUDED_DIRS = new Set([
   "coverage",
   ".cache",
   ".pytest_cache",
-  "reports"
+  "reports",
+  "bad-docs"
 ]);
 
 const MARKDOWN_EXTENSIONS = new Set([".md", ".markdown", ".mdx"]);
@@ -546,4 +547,3 @@ function toPosix(value: string): string {
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
   return error instanceof Error && "code" in error;
 }
-

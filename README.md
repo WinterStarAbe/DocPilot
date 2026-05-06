@@ -15,6 +15,8 @@ npm run analyze:self
 Demo evidence:
 
 - Self-analysis report: `reports/docpilot-report.md`
+- Gemini live model report: `reports/docpilot-gemini-report.md`
+- Bad-docs fixture report: `reports/bad-docs-report.md`
 - Incentive program application material: `docs/application.md`
 - CI workflow: `.github/workflows/ci.yml`
 
@@ -63,6 +65,14 @@ node dist/src/cli.js models
 ```
 
 Use a model name from that list with `--model`. If a model returns 404, it is not available to your key/API version or does not support `generateContent`. If it returns 503 or 500, retry later or choose another listed model.
+
+Try the intentionally broken documentation fixture:
+
+```bash
+node dist/src/cli.js analyze --target examples/bad-docs --out reports/bad-docs-report.md
+```
+
+This fixture demonstrates missing README detection, missing docs directory detection, heading hierarchy checks, broken local link detection, and thin-document findings.
 
 ## Agent Flow
 

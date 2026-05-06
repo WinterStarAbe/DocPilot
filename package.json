@@ -2,6 +2,7 @@
   "name": "docpilot",
   "version": "0.1.0",
   "description": "AI-agent assisted Markdown documentation analysis CLI.",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "docpilot": "./dist/src/cli.js"
