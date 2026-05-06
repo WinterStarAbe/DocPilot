@@ -16,6 +16,21 @@ interface GeminiGenerateContentResponse {
   }>;
 }
 
+export interface GeminiModelSummary {
+  name: string;
+  displayName: string;
+  supportedGenerationMethods: string[];
+}
+
+interface GeminiListModelsResponse {
+  models?: Array<{
+    name?: string;
+    displayName?: string;
+    supportedGenerationMethods?: string[];
+  }>;
+  nextPageToken?: string;
+}
+
 export class MockAiProvider implements AiProvider {
   async analyzeDocs(context: DocsContext): Promise<Finding[]> {
     const findings: Finding[] = [
@@ -100,7 +115,7 @@ export class GeminiProvider implements AiProvider {
 
     if (!response.ok) {
       const body = await response.text();
-      throw new Error(`Gemini API request failed with ${response.status}: ${body}`);
+      throw new Error(formatGeminiHttpError(response.status, this.model, body));
     }
 
     const payload = (await response.json()) as GeminiGenerateContentResponse;
@@ -131,6 +146,55 @@ export function createAiProvider(input?: { provider?: ProviderName; model?: stri
   }
 
   return new MockAiProvider();
+}
+
+export async function listGeminiGenerateContentModels(input?: {
+  apiKey?: string;
+  endpointBase?: string;
+}): Promise<GeminiModelSummary[]> {
+  const apiKey = input?.apiKey ?? process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is required when listing Gemini models.");
+  }
+
+  const endpointBase = input?.endpointBase ?? "https://generativelanguage.googleapis.com/v1beta";
+  const models: GeminiModelSummary[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    const url = new URL(`${endpointBase}/models`);
+    url.searchParams.set("pageSize", "1000");
+    if (pageToken) {
+      url.searchParams.set("pageToken", pageToken);
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        "x-goog-api-key": apiKey
+      }
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      throw new Error(`Gemini model list failed with ${response.status}: ${body}`);
+    }
+
+    const payload = (await response.json()) as GeminiListModelsResponse;
+    for (const model of payload.models ?? []) {
+      const supportedGenerationMethods = model.supportedGenerationMethods ?? [];
+      if (model.name && supportedGenerationMethods.includes("generateContent")) {
+        models.push({
+          name: model.name.replace(/^models\//, ""),
+          displayName: model.displayName ?? model.name,
+          supportedGenerationMethods
+        });
+      }
+    }
+    pageToken = payload.nextPageToken;
+  } while (pageToken);
+
+  return models.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function buildGeminiPrompt(context: DocsContext): string {
@@ -180,6 +244,19 @@ function parseGeminiFindings(text: string): Finding[] {
       source: "gemini" as const
     }))
     .slice(0, 5);
+}
+
+function formatGeminiHttpError(status: number, model: string, body: string): string {
+  const suffix =
+    status === 404
+      ? "The model name may not exist for this API key/version or may not support generateContent. Run `docpilot models` to list available generateContent models."
+      : status === 503
+        ? "The model is temporarily unavailable or under high demand. Retry later or choose another model from `docpilot models`."
+        : status >= 500
+          ? "The Gemini service returned a server-side error. Retry later or choose another model from `docpilot models`."
+          : "Review the Gemini API response and request settings.";
+
+  return `Gemini API request failed with ${status} for model "${model}". ${suffix}\n${body}`;
 }
 
 function parseGeminiJsonOrFallback(text: string): unknown {
@@ -296,4 +373,3 @@ function summarizePlainText(text: string): string {
 
   return normalized.length <= 500 ? normalized : `${normalized.slice(0, 497)}...`;
 }
-

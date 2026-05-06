@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { analyzeDocumentation } from "./analyze.js";
+import { listGeminiGenerateContentModels } from "./providers.js";
 
 const program = new Command();
 
@@ -40,5 +41,26 @@ program
     }
   });
 
-program.parseAsync();
+program
+  .command("models")
+  .description("List Gemini models available to this API key that support generateContent")
+  .action(async () => {
+    try {
+      const models = await listGeminiGenerateContentModels();
 
+      if (models.length === 0) {
+        console.log("No Gemini models supporting generateContent were returned for this API key.");
+        return;
+      }
+
+      for (const model of models) {
+        console.log(`${model.name}\t${model.displayName}`);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`DocPilot models failed: ${message}`);
+      process.exitCode = 1;
+    }
+  });
+
+program.parseAsync();

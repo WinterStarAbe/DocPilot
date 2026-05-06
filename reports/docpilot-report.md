@@ -7,7 +7,7 @@
 ## 掃描摘要
 
 - Target: `E:\WorkSpace\CodeX\DocPilot`
-- Generated at: 2026-05-06T08:13:06.759Z
+- Generated at: 2026-05-06T08:44:23.977Z
 - Package name: docpilot
 - README: present
 - Docs directory: present
@@ -30,7 +30,7 @@
 
 ### Largest documents
 
-- `README.md`: 335 words, 87 lines, 0 broken links
+- `README.md`: 397 words, 96 lines, 0 broken links
 - `docs/application.md`: 329 words, 97 lines, 0 broken links
 
 ## 發現項目

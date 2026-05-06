@@ -4,7 +4,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { analyzeDocumentation } from "../src/analyze.js";
 import { ExplorerAgent } from "../src/agents.js";
-import { createAiProvider, GeminiProvider } from "../src/providers.js";
+import { createAiProvider, GeminiProvider, listGeminiGenerateContentModels } from "../src/providers.js";
 import type { DocsContext } from "../src/types.js";
 
 let tempRoot: string;
@@ -187,6 +187,41 @@ describe("DocPilot analysis", () => {
     expect(() => createAiProvider({ provider: "gemini" })).toThrow("GEMINI_API_KEY is required");
   });
 
+  it("lists Gemini models that support generateContent", async () => {
+    const originalFetch = globalThis.fetch;
+    process.env.GEMINI_API_KEY = "test-key";
+    globalThis.fetch = async () =>
+      new Response(
+        JSON.stringify({
+          models: [
+            {
+              name: "models/text-embedding-004",
+              displayName: "Text Embedding 004",
+              supportedGenerationMethods: ["embedContent"]
+            },
+            {
+              name: "models/gemini-2.5-flash",
+              displayName: "Gemini 2.5 Flash",
+              supportedGenerationMethods: ["generateContent", "countTokens"]
+            }
+          ]
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+
+    try {
+      await expect(listGeminiGenerateContentModels()).resolves.toEqual([
+        {
+          name: "gemini-2.5-flash",
+          displayName: "Gemini 2.5 Flash",
+          supportedGenerationMethods: ["generateContent", "countTokens"]
+        }
+      ]);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it("parses Gemini findings from generateContent output", async () => {
     const originalFetch = globalThis.fetch;
     process.env.GEMINI_API_KEY = "test-key";
@@ -317,6 +352,30 @@ describe("DocPilot analysis", () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it("explains Gemini 404 model errors with the models command hint", async () => {
+    const originalFetch = globalThis.fetch;
+    process.env.GEMINI_API_KEY = "test-key";
+    globalThis.fetch = async () =>
+      new Response(
+        JSON.stringify({
+          error: {
+            code: 404,
+            message: "models/example is not found for API version v1beta",
+            status: "NOT_FOUND"
+          }
+        }),
+        { status: 404, headers: { "Content-Type": "application/json" } }
+      );
+
+    try {
+      const provider = new GeminiProvider({ model: "example" });
+
+      await expect(provider.analyzeDocs(createContextFixture())).rejects.toThrow("Run `docpilot models`");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });
 
 async function writeProject(
@@ -373,4 +432,3 @@ function createContextFixture(): DocsContext {
     missingCommonSections: []
   };
 }
-

@@ -55,6 +55,15 @@ node dist/src/cli.js analyze --provider gemini --model gemini-2.5-flash --out re
 
 The Gemini report is intentionally not checked in by default because it depends on a live API key and model output.
 
+List Gemini models available to your API key that support `generateContent`:
+
+```powershell
+$env:GEMINI_API_KEY = "your-key"
+node dist/src/cli.js models
+```
+
+Use a model name from that list with `--model`. If a model returns 404, it is not available to your key/API version or does not support `generateContent`. If it returns 503 or 500, retry later or choose another listed model.
+
 ## Agent Flow
 
 1. `ExplorerAgent` scans Markdown files, README presence, docs directory presence, heading hierarchy, local relative links, word counts, and common section coverage.
