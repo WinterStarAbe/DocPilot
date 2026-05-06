@@ -1,10 +1,25 @@
 # DocPilot
 
-DocPilot is an AI-agent assisted Markdown documentation analysis CLI. It scans a project or documentation directory, runs a deterministic multi-agent review flow, and writes a Markdown report that can be used for documentation debt review, demo material, or AI incentive program submissions.
+DocPilot is an AI-agent assisted Markdown documentation analysis CLI for turning scattered project docs into reviewable documentation health reports.
 
 Repository: <https://github.com/WinterStarAbe/DocPilot>
 
-## MVP Demo
+## Why It Exists
+
+Small projects often ship code faster than they update README files, docs directories, onboarding steps, testing instructions, and roadmap notes. DocPilot makes documentation review repeatable: it scans Markdown files, checks common documentation gaps, optionally asks a live AI model for findings, and writes a Markdown report that can be used as demo evidence or incentive program submission material.
+
+## MVP Evidence
+
+| Evidence | Path | What it proves |
+| --- | --- | --- |
+| Self-analysis report | `reports/docpilot-report.md` | DocPilot can scan its own repo and produce a stable mock-provider report. |
+| Gemini live model report | `reports/docpilot-gemini-report.md` | The same Agent flow can call a real Gemini model through the provider interface. |
+| Bad-docs fixture report | `reports/bad-docs-report.md` | Rule checks detect missing README, missing docs directory, broken links, heading skips, and thin docs. |
+| Application material | `docs/application.md` | Chinese incentive-program project description and implementation narrative. |
+| Architecture notes | `docs/architecture.md` | CLI, Agent, provider, and report data flow overview. |
+| CI workflow | `.github/workflows/ci.yml` | Build, lint, tests, and self-analysis run in GitHub Actions. |
+
+## Quick Demo
 
 DocPilot can analyze its own repository and produce a submission-ready report:
 
@@ -12,13 +27,13 @@ DocPilot can analyze its own repository and produce a submission-ready report:
 npm run analyze:self
 ```
 
-Demo evidence:
+It can also analyze an intentionally broken fixture:
 
-- Self-analysis report: `reports/docpilot-report.md`
-- Gemini live model report: `reports/docpilot-gemini-report.md`
-- Bad-docs fixture report: `reports/bad-docs-report.md`
-- Incentive program application material: `docs/application.md`
-- CI workflow: `.github/workflows/ci.yml`
+```bash
+node dist/src/cli.js analyze --target examples/bad-docs --out reports/bad-docs-report.md
+```
+
+The fixture demonstrates missing README detection, missing docs directory detection, heading hierarchy checks, broken local link detection, and thin-document findings.
 
 ## Getting Started
 
@@ -30,7 +45,7 @@ npm test
 npm run analyze:self
 ```
 
-## CLI
+## CLI Usage
 
 ```bash
 docpilot analyze --target . --out reports/docpilot-report.md
@@ -65,14 +80,6 @@ node dist/src/cli.js models
 ```
 
 Use a model name from that list with `--model`. If a model returns 404, it is not available to your key/API version or does not support `generateContent`. If it returns 503 or 500, retry later or choose another listed model.
-
-Try the intentionally broken documentation fixture:
-
-```bash
-node dist/src/cli.js analyze --target examples/bad-docs --out reports/bad-docs-report.md
-```
-
-This fixture demonstrates missing README detection, missing docs directory detection, heading hierarchy checks, broken local link detection, and thin-document findings.
 
 ## Agent Flow
 
