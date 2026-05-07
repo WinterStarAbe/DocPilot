@@ -7,7 +7,7 @@
 ## 掃描摘要
 
 - Target: `E:\WorkSpace\CodeX\DocPilot`
-- Generated at: 2026-05-06T09:02:36.097Z
+- Generated at: 2026-05-07T07:55:26.756Z
 - Package name: docpilot
 - README: present
 - Docs directory: present
